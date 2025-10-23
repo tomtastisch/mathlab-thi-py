@@ -6,13 +6,18 @@ Benutzereingaben bereit.
 """
 
 
-def read_operator(prompt: str, allowed: set[str]) -> str:
+def read_operator(
+        prompt: str,
+        allowed: set[str] | tuple[str, ...]
+) -> str:
+
     """Liest einen gültigen Operator ('+' oder '-') ein."""
     while True:
         op = input(prompt).strip()
         if op in allowed:
             return op
         print(f"Ungültiger Operator. Erlaubt: {', '.join(allowed)}")
+
 
 def read_nat(prompt: str) -> int:
     """Liest eine natürliche Zahl von der Standardeingabe.

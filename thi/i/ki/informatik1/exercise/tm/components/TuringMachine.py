@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, Final, ClassVar, TypeAlias, get_args, cast
 
-from org.thi.i.ki.informatik1.exercise01.a4.components.Tape import Tape, Direction
-from org.thi.i.ki.informatik1.exercise01.a4.components.TransitionBuilder import TransitionBuilder, State
+from thi.i.ki.informatik1.exercise.tm.components.Tape import Tape, Direction
+from thi.i.ki.informatik1.exercise.tm.components.TransitionBuilder import TransitionBuilder, State
 
+# Zentrale Verwaltung aller erlaubten Operationen
+_ops: TypeAlias = Literal["+", "-", "#"]
+_symbols: Final[tuple[str, ...]] = get_args(_ops)
 
 class TraceEntry(TypedDict):
     """ZWECK: Repräsentiert einen protokollierten Schritt (DIN-gerecht, knapp)."""
@@ -16,7 +19,7 @@ class TraceEntry(TypedDict):
 
 class RunResult(TypedDict):
     """ZWECK: Strukturierte Rückgabe von `run_operation`."""
-    operator: Literal["+", "-"]
+    operation: _ops
     input: str
     output: str
     steps: int
@@ -69,8 +72,10 @@ class TuringMachine:
     -------
     Docstrings sind normgerecht gegliedert (Zweck, Voraussetzungen, Schnittstellen).
     """
+    OPERATIONS: ClassVar[tuple[str, ...]] = _symbols
+
     n1: int
-    op: Literal["+", "-"]
+    op: _ops | str
     n2: int
 
     tape: Tape = field(init=False)
@@ -108,12 +113,21 @@ class TuringMachine:
         ---------------
         ValueError bei ungültigen Eingaben.
         """
+
+        # Validieren der Eingaben zur Laufzeit
         self._validate_inputs()
+
+        # Erstellen der Eingabezeichenkette
         tape_input = self._make_input()
+
+        # Erstellen des Laufbandes
         self.tape = Tape.from_string(tape_input)
+
+        # Umsetzung des Laufbandes
         self._run_operation_steps(tape_input)
+
         return {
-            "operator": self.op,
+            "operation": cast(_ops, self.op),
             "input": tape_input,
             "output": self.result,
             "steps": self.steps,
@@ -139,8 +153,9 @@ class TuringMachine:
         ---------------
         ValueError bei Verstößen.
         """
-        if self.op not in {"+", "-"}:
-            raise ValueError("op muss '+' oder '-' sein.")
+        if self.op not in _symbols:
+            raise ValueError(f"op muss [{', '.join(sorted(TuringMachine.OPERATIONS))}]: sein")
+
         if self.n1 < 0 or self.n2 < 0:
             raise ValueError("n1 und n2 müssen natürliche Zahlen (>= 0) sein.")
 
@@ -148,13 +163,21 @@ class TuringMachine:
         """
         ZWECK
         -----
-        Erzeugt die unäre Eingabezeichenkette, z. B. '111 + 11'.
+        Erzeugt die unäre Eingabezeichenkette,
+        Bei '+', '-' : '1' * n1 + op + '1' * n2.
+        Bei '#':        '1' * n1 |Ende
 
         RÜCKGABE
         --------
         str : Unärstring der Form '1'*n1 + op + '1'*n2.
         """
-        return f"{'1' * self.n1}{self.op}{'1' * self.n2}"
+
+        tape: str = f"{'1' * self.n1}"
+
+        if self.op != '#':
+            tape += f"{self.op}{'1' * self.n2}"
+
+        return tape
 
     def _run_operation_steps(self, tape_input: str) -> None:
         """

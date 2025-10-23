@@ -3,7 +3,7 @@
 
 from enum import Enum, auto
 
-from org.thi.i.ki.informatik1.exercise01.a4.components.Tape import Direction
+from thi.i.ki.informatik1.exercise.tm.components.Tape import Direction
 
 
 class State(Enum):
