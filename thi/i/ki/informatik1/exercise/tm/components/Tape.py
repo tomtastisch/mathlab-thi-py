@@ -29,7 +29,7 @@ class Direction(Enum):
     """
     LEFT = "L"
     RIGHT = "R"
-    STAY = "N"
+    STAY = "S"
 
 
 @dataclass(slots=True)
@@ -67,7 +67,11 @@ class Tape:
     # ----------------------------- Fabrik -----------------------------
 
     @classmethod
-    def from_string(cls, s: str, blank: Symbol = BLANK) -> Self:
+    def from_string(
+            cls,
+            s: str,
+            blank: Symbol = BLANK
+    ) -> Self:
         """
         ZWECK
         -----
@@ -86,7 +90,6 @@ class Tape:
         """
         return cls(cells={i: ch for i, ch in enumerate(s) if ch != blank}, blank=blank)
 
-    # End from_string()
 
     # ----------------------------- I/O --------------------------------
 
@@ -102,9 +105,10 @@ class Tape:
         """
         return self.cells.get(self.head, self.blank)
 
-    # End read()
-
-    def write(self, ch: Symbol) -> None:
+    def write(
+            self,
+            ch: Symbol
+    ) -> None:
         """
         ZWECK
         -----
@@ -124,7 +128,6 @@ class Tape:
         else:
             self.cells[self.head] = ch
 
-    # End write()
 
     def erase(self) -> None:
         """
@@ -134,9 +137,7 @@ class Tape:
         """
         self.write(self.blank)
 
-    # End erase()
-
-    def at_blank(self) -> bool:
+    def is_blank(self) -> bool:
         """
         ZWECK
         -----
@@ -144,11 +145,13 @@ class Tape:
         """
         return self.read() == self.blank
 
-    # End at_blank()
 
     # --------------------------- Bewegung -----------------------------
 
-    def move(self, direction: Direction) -> None:
+    def move(
+            self,
+            direction: Direction
+    ) -> None:
         """
         ZWECK
         -----
@@ -167,7 +170,6 @@ class Tape:
             case Direction.STAY:
                 pass
 
-    # End move()
 
     # --------------------------- Utilities ----------------------------
 
@@ -187,9 +189,10 @@ class Tape:
         hi = max(self.cells)
         return "".join(self.cells.get(i, self.blank) for i in range(lo, hi + 1))
 
-    # End snapshot()
-
-    def collect_all(self, symbol: Symbol) -> str:
+    def collect_all(
+            self,
+            symbol: Symbol
+    ) -> str:
         """
         ZWECK
         -----
@@ -198,10 +201,14 @@ class Tape:
         """
         return "".join(ch for ch in self.snapshot() if ch == symbol)
 
-    # End collect_all()
-
-    # Die folgenden Hilfen sind für Random-Access-Analysen gedacht; nicht für TM-Schritte benutzen.
-    def find(self, symbol: Symbol, start: int = 0, end: int | None = None) -> int | None:
+    # Die folgenden Hilfen sind für Random-Access-Analysen gedacht;
+    # nicht für TM-Schritte benutzen.
+    def find(
+            self,
+            symbol: Symbol,
+            start: int = 0,
+            end: int | None = None
+    ) -> int | None:
         """
         ZWECK
         -----
@@ -212,9 +219,12 @@ class Tape:
         matching = (i for i, ch in self.cells.items() if start <= i < ub and ch == symbol)
         return min(matching, default=None)
 
-    # End find()
-
-    def has_remaining(self, symbol: Symbol, start: int, end: int | None = None) -> bool:
+    def has_remaining(
+            self,
+            symbol: Symbol,
+            start: int,
+            end: int | None = None
+    ) -> bool:
         """
         ZWECK
         -----
@@ -222,9 +232,12 @@ class Tape:
         """
         return self.find(symbol, start, end) is not None
 
-    # End has_remaining()
-
-    def collect(self, symbol: Symbol, start: int, end: int | None = None) -> str:
+    def collect(
+            self,
+            symbol: Symbol,
+            start: int,
+            end: int | None = None
+    ) -> str:
         """
         ZWECK
         -----
@@ -236,6 +249,3 @@ class Tape:
         if start >= hi:
             return ""
         return "".join(ch for i in range(start, hi) if (ch := self.cells.get(i)) == symbol)
-    # End collect()
-
-# End Tape.py

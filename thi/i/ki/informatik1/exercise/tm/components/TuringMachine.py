@@ -9,7 +9,15 @@ from thi.i.ki.informatik1.exercise.tm.components.Tape import Tape, Direction
 from thi.i.ki.informatik1.exercise.tm.components.TransitionBuilder import TransitionBuilder, State
 
 # Zentrale Verwaltung aller erlaubten Operationen
+
+
 _ops: TypeAlias = Literal["+", "-", "#"]
+"""
+    '+': Addition
+    '-': Subtraktion
+    '#': Doubling
+"""
+
 _symbols: Final[tuple[str, ...]] = get_args(_ops)
 
 class TraceEntry(TypedDict):
@@ -44,7 +52,7 @@ class TuringMachine:
     --------------------------
     n1 : int
         Linker Operand (dezimal).
-    op : Literal['+','-']
+    op : Literal['+','-', '#']
         Operator.
     n2 : int
         Rechter Operand (dezimal).
@@ -240,8 +248,28 @@ class TuringMachine:
         """
         if self.op == "+":
             self.delta = self._build_addition_delta()
-        else:
+        elif self.op == "-":
             self.delta = self._build_subtraction_delta()
+        else:
+            self.delta = self._build_expotential_doubling_delta()
+
+    def _build_expotential_doubling_delta(self) -> dict[tuple[State, str], tuple[str, Direction, State]]:
+        """
+        ZWECK
+        -----
+        Baut die δ-Übergangstabelle für das doubling ('#') auf.
+
+        STRATEGIE
+        ---------
+        → Läuft zum Ende des Bandes und zählt dabei die Anzahl der '1'.
+        → Fügt ZWEI zusätzliche Leerzeichen am Ende der Eingabe hinzu.
+        → Springt zum Anfang des Bandes zurück (7, 6, ..., 0)
+        → Fügt am Beginn der Eingabe einen marker [m = !(_ops)] hinzu.
+        → 
+        → ACCEPT.
+        """
+
+        return tb.build()
 
     def _build_addition_delta(self) -> dict[tuple[State, str], tuple[str, Direction, State]]:
         """

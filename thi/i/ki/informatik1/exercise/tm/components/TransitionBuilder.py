@@ -78,8 +78,13 @@ class TransitionBuilder:
         """
         self.d: dict[tuple[State, str], tuple[str, Direction, State]] = {}
 
-    def add(self, state: State, symbols: str | list[str] | tuple[str, ...] | set[str], write: str, move: Direction,
-            next_state: State) -> None:
+    def add(
+            self,
+            state: State,
+            symbols: str | list[str] | tuple[str, ...] | set[str],
+            write: str, move: Direction,
+            next_state: State
+    ) -> None:
         """
         ZWECK
         -----
@@ -109,8 +114,13 @@ class TransitionBuilder:
         for sym in it:
             self.d[(state, sym)] = (write, move, next_state)
 
-    def add_same(self, state: State, symbols: str | list[str] | tuple[str, ...] | set[str], move: Direction,
-                 next_state: State) -> None:
+    def add_same(
+            self,
+            state: State,
+            symbols: str | list[str] | tuple[str, ...] | set[str],
+            move: Direction,
+            next_state: State
+    ) -> None:
         """
         ZWECK
         -----
